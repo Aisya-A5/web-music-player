@@ -8,22 +8,14 @@ RUN npm install
 
 COPY . .
 
-ARG NEXT_PUBLIC_FIREBASE_API_KEY
-ARG NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-ARG NEXT_PUBLIC_FIREBASE_PROJECT_ID
-ARG NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-ARG NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-ARG NEXT_PUBLIC_FIREBASE_APP_ID
-ARG NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
-
-
-ENV NEXT_PUBLIC_FIREBASE_API_KEY=$NEXT_PUBLIC_FIREBASE_API_KEY
-ENV NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-ENV NEXT_PUBLIC_FIREBASE_PROJECT_ID=$NEXT_PUBLIC_FIREBASE_PROJECT_ID
-ENV NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=$NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-ENV NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=$NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-ENV NEXT_PUBLIC_FIREBASE_APP_ID=$NEXT_PUBLIC_FIREBASE_APP_ID
-ENV NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=$NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
+    echo 'if [ -d "/secrets" ] && [ -f "/secrets/.env" ]; then' >> /app/entrypoint.sh && \
+    echo '  cp /secrets/.env /app/.env' >> /app/entrypoint.sh && \
+    echo '  echo "Loaded environment from mounted secret"' >> /app/entrypoint.sh && \
+    echo 'fi' >> /app/entrypoint.sh && \
+    echo 'exec node src/server.js' >> /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh && \
+    chown nodeapp:nodeapp /app/entrypoint.sh
 
 RUN npm run build
 
