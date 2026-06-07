@@ -236,7 +236,7 @@ function PlayerContent() {
             {isMounted && currentTrack ? (
               <div className="w-full h-full flex flex-col relative z-10">
                 <ReactPlayer
-                  url={`https://www.youtube.com/watch?v=${currentTrack.videoId}`}
+                  src={`https://www.youtube.com/watch?v=${currentTrack.videoId}`}
                   playing={isPlaying}
                   controls={true}
                   width="100%"
