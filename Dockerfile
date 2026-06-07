@@ -15,7 +15,7 @@ RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
     echo 'fi' >> /app/entrypoint.sh && \
     echo 'exec node src/server.js' >> /app/entrypoint.sh && \
     chmod +x /app/entrypoint.sh && \
-    chown nodeapp:nodeapp /app/entrypoint.sh
+    chown node:node /app/entrypoint.sh
 
 RUN npm run build
 
