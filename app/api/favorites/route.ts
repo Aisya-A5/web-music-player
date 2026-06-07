@@ -2,6 +2,8 @@
 import { db, auth } from "@/lib/config";
 import { collection, addDoc, deleteDoc, doc, query, where, getDocs, serverTimestamp } from "firebase/firestore";
 
+export const dynamic = "force-dynamic";
+
 // GET - Fetch user's favorites
 export async function GET(request: Request) {
   try {
