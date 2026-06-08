@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, Play, Loader2, Disc3, ListMusic, Sparkles, Plus, MoreHorizontal, Heart } from "lucide-react";
+import { Search, Play, Loader2, Disc3, ListMusic, Sparkles, Plus, Heart } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
@@ -21,8 +21,9 @@ function PlayerContent() {
   // State untuk Antrean, Favorit, dan Rekomendasi
   const [queue, setQueue] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
 
-  // Load favorites from localStorage on mount
+  // Load favorites dari localStorage pas awal render
   useEffect(() => {
     try {
       const stored = localStorage.getItem('likeloop_favorites');
@@ -35,18 +36,15 @@ function PlayerContent() {
       console.error("Error loading favorites:", error);
     }
   }, []);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Keep playing even when tab is not visible
+  // Biar lagu tetep nyala walau pindah tab
   useEffect(() => {
     const handleVisibilityChange = () => {
-      // Force playing to stay true even when tab is hidden
       if (document.hidden && currentTrack) {
-        console.log("Tab hidden - keeping audio playing");
         setIsPlaying(true);
       }
     };
@@ -58,19 +56,17 @@ function PlayerContent() {
     };
   }, [currentTrack]);
 
-  // EFEK REKOMENDASI DINAMIS: Jalan tiap lagu ganti
+  // Efek Rekomendasi Dinamis
   useEffect(() => {
     if (!currentTrack) return;
 
     const fetchRecommendations = async () => {
-      // Ambil nama artis pertama aja biar pencariannya lebih akurat
       const artistQuery = currentTrack.artists?.[0]?.name || currentTrack.artist?.name || "Lagu Hits";
       
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(artistQuery)}`);
         const data = await res.json();
         if (data.success) {
-          // Singkirin lagu yang lagi diputar dari daftar rekomendasi, ambil 5 teratas
           const recs = data.data.filter((t: any) => t.videoId !== currentTrack.videoId).slice(0, 5);
           setRecommendations(recs);
         }
@@ -122,12 +118,10 @@ function PlayerContent() {
       const isFavorited = currentFavs.some((f: any) => f.videoId === track.videoId);
       
       if (isFavorited) {
-        // Remove from favorites
         const updated = currentFavs.filter((f: any) => f.videoId !== track.videoId);
         localStorage.setItem('likeloop_favorites', JSON.stringify(updated));
         setFavorites(updated.map((f: any) => f.videoId));
       } else {
-        // Add to favorites with full track data
         const newFav = {
           videoId: track.videoId,
           name: track.name,
@@ -147,12 +141,12 @@ function PlayerContent() {
     }
   };
 
-  // FUNGSI AUTO-NEXT: Jalan kalau video/lagu udah selesai (onEnded)
+  // Auto-next pas lagu kelar
   const handleTrackEnded = () => {
     if (queue.length > 0) {
       const nextTrack = queue[0];
       setCurrentTrack(nextTrack);
-      setQueue((prev) => prev.slice(1)); // Hapus dari antrean
+      setQueue((prev) => prev.slice(1));
     }
   };
 
@@ -242,7 +236,7 @@ function PlayerContent() {
                   width="100%"
                   height="100%"
                   style={{ position: 'absolute', top: 0, left: 0 }}
-                  onEnded={handleTrackEnded} // Auto-play next di sini!
+                  onEnded={handleTrackEnded}
                 />
               </div>
             ) : (

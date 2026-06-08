@@ -1,22 +1,32 @@
-import type { Metadata } from "next";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import "./globals.css";
-import LayoutWrapper from "./components/layoutwrapper";
+import Sidebar from "./components/Sidebar"; // Pastikan path ini sesuai dengan struktur folder kamu
+import { usePathname } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Likeloop Music",
-  description: "Your favorite music player",
-};
-
-export default function RootLayout({
+export default function LayoutWrapper({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="h-screen w-screen bg-[#E99D72]"></div>;
+  }
+
   return (
-    <html lang="en">
-      <body className="bg-gradient-to-br from-[#E99D72] via-[#9b5de5] to-[#00bbf9] overflow-hidden text-white font-sans h-screen w-screen">
-        <LayoutWrapper>{children}</LayoutWrapper>
-      </body>
-    </html>
+    <div className="flex h-screen w-screen overflow-hidden">
+      <Sidebar />
+      <main className="flex-1 h-full overflow-hidden flex flex-col">
+        {children}
+      </main>
+    </div>
   );
 }
